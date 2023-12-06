@@ -1,6 +1,6 @@
 name: open_save_file_dialogs
 description: "A Flutter plugin for opening and saving files on Android."
-version: 0.0.1
+version: 0.1.0
 
 environment:
   sdk: '>=3.2.2 <4.0.0'
