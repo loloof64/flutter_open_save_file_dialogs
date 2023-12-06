@@ -15,12 +15,14 @@ class OpenSaveFileDialogsPlugin :
 
   companion object {
     val SAVE_FILE_DIALOG_CODE = 1
-    val SAVE_FOLDER_DIALOG_CODE = 2
+    val OPEN_FILE_DIALOG_CODE = 2
+    val SELECT_FOLDER_DIALOG_CODE = 3
   }
 
   private var activity: Activity? = null
   private var saveFileCallback: Callback? = null
-  private var saveFolderCallback: Callback? = null
+  private var openFileCallback: Callback? = null
+  private var selectFolderCallback: Callback? = null
 
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     OpenSaveFileDialogs.setUp(binding.binaryMessenger, this)
@@ -43,10 +45,19 @@ class OpenSaveFileDialogsPlugin :
     activity?.startActivityForResult(intent, SAVE_FILE_DIALOG_CODE)
   }
 
-  override fun saveFolderDialog(callback: (Result<String?>) -> Unit) {
-    saveFolderCallback = callback
+  override fun openFileDialog(callback: Callback) {
+    openFileCallback = callback
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+      addCategory(Intent.CATEGORY_OPENABLE)
+      type = "text/plain"
+  }
+    activity?.startActivityForResult(intent, OPEN_FILE_DIALOG_CODE)
+  }
+
+  override fun folderDialog(callback: (Result<String?>) -> Unit) {
+    selectFolderCallback = callback
     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-    activity?.startActivityForResult(intent, SAVE_FOLDER_DIALOG_CODE)
+    activity?.startActivityForResult(intent, SELECT_FOLDER_DIALOG_CODE)
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -76,14 +87,23 @@ class OpenSaveFileDialogsPlugin :
       }
       saveFileCallback = null
     }
-    else if (requestCode == SAVE_FOLDER_DIALOG_CODE) {
+    else if (requestCode == OPEN_FILE_DIALOG_CODE) {
       if (resultCode == Activity.RESULT_OK) {
         val path = data?.data?.path
-        saveFolderCallback?.invoke(Result.success(path))
-      } else {
-        saveFolderCallback?.invoke(Result.success(null))
+        openFileCallback?.invoke(Result.success(path))
       }
-      saveFolderCallback = null
+      else {
+        openFileCallback?.invoke(Result.success(null))
+      }
+    }
+    else if (requestCode == SELECT_FOLDER_DIALOG_CODE) {
+      if (resultCode == Activity.RESULT_OK) {
+        val path = data?.data?.path
+        selectFolderCallback?.invoke(Result.success(path))
+      } else {
+        selectFolderCallback?.invoke(Result.success(null))
+      }
+      selectFolderCallback = null
     }
     return true
   }

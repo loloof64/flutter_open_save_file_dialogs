@@ -14,5 +14,8 @@ abstract class OpenSaveFileDialogs {
   );
 
   @async
-  String? saveFolderDialog();
+  String? openFileDialog();
+
+  @async
+  String? folderDialog();
 }

@@ -16,7 +16,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _openSaveFileDialogsPlugin = OpenSaveFileDialogs();
   String? savedFilePath;
-  String? savedFolderPath;
+  String? openedFilePath;
+  String? folderPath;
 
   void _selectSavedFile() async {
     final path = await _openSaveFileDialogsPlugin.saveFileDialog(startingFileName: "test.txt");
@@ -25,10 +26,17 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void _selectSavedFolder() async {
-    final path = await _openSaveFileDialogsPlugin.saveFolderDialog();
+  void _selectOpenedFile() async {
+    final path = await _openSaveFileDialogsPlugin.openFileDialog();
     setState(() {
-      savedFolderPath = path;
+      openedFilePath = path;
+    });
+  }
+
+  void _selectFolder() async {
+    final path = await _openSaveFileDialogsPlugin.folderDialog();
+    setState(() {
+      folderPath = path;
     });
   }
 
@@ -52,11 +60,19 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Saved folder path: $savedFolderPath'),
+              Text('Opened file path: $openedFilePath'),
               ElevatedButton(
-                onPressed: _selectSavedFolder,
+                onPressed: _selectOpenedFile,
                 child: const Text(
-                  'Select saved folder',
+                  'Select opened file',
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text('Saved folder path: $folderPath'),
+              ElevatedButton(
+                onPressed: _selectFolder,
+                child: const Text(
+                  'Select folder',
                 ),
               ),
             ],
