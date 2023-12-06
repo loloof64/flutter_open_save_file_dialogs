@@ -46,6 +46,7 @@ class FlutterError (
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface OpenSaveFileDialogs {
   fun saveFileDialog(startingFileName: String?, callback: (Result<String?>) -> Unit)
+  fun saveFolderDialog(callback: (Result<String?>) -> Unit)
 
   companion object {
     /** The codec used by OpenSaveFileDialogs. */
@@ -62,6 +63,24 @@ interface OpenSaveFileDialogs {
             val args = message as List<Any?>
             val startingFileNameArg = args[0] as String?
             api.saveFileDialog(startingFileNameArg) { result: Result<String?> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.open_save_file_dialogs.OpenSaveFileDialogs.saveFolderDialog", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            api.saveFolderDialog() { result: Result<String?> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))

@@ -25,4 +25,6 @@ abstract class OpenSaveFileDialogPlatform extends PlatformInterface {
   Future<String?> saveFileDialog(
     {String? startingFileName,}
   );
+
+  Future<String?> saveFolderDialog();
 }

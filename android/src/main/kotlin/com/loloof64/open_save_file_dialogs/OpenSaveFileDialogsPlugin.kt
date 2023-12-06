@@ -15,10 +15,12 @@ class OpenSaveFileDialogsPlugin :
 
   companion object {
     val SAVE_FILE_DIALOG_CODE = 1
+    val SAVE_FOLDER_DIALOG_CODE = 2
   }
 
   private var activity: Activity? = null
-  private var callback: Callback? = null
+  private var saveFileCallback: Callback? = null
+  private var saveFolderCallback: Callback? = null
 
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     OpenSaveFileDialogs.setUp(binding.binaryMessenger, this)
@@ -29,7 +31,7 @@ class OpenSaveFileDialogsPlugin :
   }
 
   override fun saveFileDialog(startingFileName: String?, callback: Callback) {
-    this.callback = callback
+    saveFileCallback = callback
     val intent =
         Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
           addCategory(Intent.CATEGORY_OPENABLE)
@@ -39,6 +41,12 @@ class OpenSaveFileDialogsPlugin :
           }
         }
     activity?.startActivityForResult(intent, SAVE_FILE_DIALOG_CODE)
+  }
+
+  override fun saveFolderDialog(callback: (Result<String?>) -> Unit) {
+    saveFolderCallback = callback
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+    activity?.startActivityForResult(intent, SAVE_FOLDER_DIALOG_CODE)
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -62,11 +70,20 @@ class OpenSaveFileDialogsPlugin :
     if (requestCode == SAVE_FILE_DIALOG_CODE) {
       if (resultCode == Activity.RESULT_OK) {
         val path = data?.data?.path
-        callback?.invoke(Result.success(path))
+        saveFileCallback?.invoke(Result.success(path))
       } else {
-        callback?.invoke(Result.success(null))
+        saveFileCallback?.invoke(Result.success(null))
       }
-      callback = null
+      saveFileCallback = null
+    }
+    else if (requestCode == SAVE_FOLDER_DIALOG_CODE) {
+      if (resultCode == Activity.RESULT_OK) {
+        val path = data?.data?.path
+        saveFolderCallback?.invoke(Result.success(path))
+      } else {
+        saveFolderCallback?.invoke(Result.success(null))
+      }
+      saveFolderCallback = null
     }
     return true
   }

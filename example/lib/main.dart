@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
 import 'package:open_save_file_dialogs/open_save_file_dialogs.dart';
 
@@ -16,13 +15,20 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _openSaveFileDialogsPlugin = OpenSaveFileDialogs();
-  String? path;
+  String? savedFilePath;
+  String? savedFolderPath;
 
-  void _selectFile() async {
-    path = await _openSaveFileDialogsPlugin.saveFileDialog();
-    print("Selected path : $path");
+  void _selectSavedFile() async {
+    final path = await _openSaveFileDialogsPlugin.saveFileDialog(startingFileName: "test.txt");
     setState(() {
-      path = path;
+      savedFilePath = path;
+    });
+  }
+
+  void _selectSavedFolder() async {
+    final path = await _openSaveFileDialogsPlugin.saveFolderDialog();
+    setState(() {
+      savedFolderPath = path;
     });
   }
 
@@ -38,11 +44,19 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('Selected path: $path'),
+              Text('Saved file path: $savedFilePath'),
               ElevatedButton(
-                onPressed: _selectFile,
+                onPressed: _selectSavedFile,
                 child: const Text(
-                  'Select file',
+                  'Select saved file',
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text('Saved folder path: $savedFolderPath'),
+              ElevatedButton(
+                onPressed: _selectSavedFolder,
+                child: const Text(
+                  'Select saved folder',
                 ),
               ),
             ],

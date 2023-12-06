@@ -8,4 +8,9 @@ class OpenSaveFileDialogUsage extends OpenSaveFileDialogPlatform {
   Future<String?> saveFileDialog({String? startingFileName}) {
     return _api.saveFileDialog(startingFileName: startingFileName);
   }
+
+  @override
+  Future<String?> saveFolderDialog() {
+    return _api.saveFolderDialog();
+  }
 }

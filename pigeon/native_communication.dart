@@ -12,4 +12,7 @@ abstract class OpenSaveFileDialogs {
   String? saveFileDialog(
     {String? startingFileName,}
   );
+
+  @async
+  String? saveFolderDialog();
 }
