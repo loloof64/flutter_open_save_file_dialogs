@@ -30,7 +30,7 @@ final _openSaveFileDialogsPlugin = OpenSaveFileDialogs();
 final path = await _openSaveFileDialogsPlugin.openFileDialog(startingFileName: "test.txt");
 ```
 
-### Select a folder
+### Select a folder
 
 Call the async method `folderDialog`.
 You get the selected path as a String, or null if no folder was selected.
