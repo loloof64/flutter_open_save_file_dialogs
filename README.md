@@ -2,7 +2,7 @@
 
 A Flutter plugin for opening and saving files on Android.
 
-### Dialogs
+### Dialogs
 
 #### Select a file for saving
 
@@ -43,7 +43,7 @@ final _openSaveFileDialogsPlugin = OpenSaveFileDialogs();
 final path = await _openSaveFileDialogsPlugin.folderDialog();
 ```
 
-## For developers
+## For developers
 
 ### updating native code
 
