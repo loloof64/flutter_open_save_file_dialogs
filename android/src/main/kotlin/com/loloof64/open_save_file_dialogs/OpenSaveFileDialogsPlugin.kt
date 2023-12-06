@@ -1,35 +1,72 @@
 package com.loloof64.open_save_file_dialogs
 
-import androidx.annotation.NonNull
-
+import android.app.Activity
+import android.content.Intent
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.PluginRegistry
+
+typealias Callback = (Result<String?>) -> Unit
 
 /** OpenSaveFileDialogPlugin */
-class OpenSaveFileDialogsPlugin: FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
+class OpenSaveFileDialogsPlugin :
+    FlutterPlugin, OpenSaveFileDialogs, ActivityAware, PluginRegistry.ActivityResultListener {
 
-  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "open_save_file_dialogs")
-    channel.setMethodCallHandler(this)
+  companion object {
+    val SAVE_FILE_DIALOG_CODE = 1
   }
 
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
-    }
+  private var activity: Activity? = null
+  private var callback: Callback? = null
+
+  override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+    OpenSaveFileDialogs.setUp(binding.binaryMessenger, this)
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
+    OpenSaveFileDialogs.setUp(binding.binaryMessenger, null)
+  }
+
+  override fun saveFileDialog(startingFileName: String?, callback: Callback) {
+    this.callback = callback
+    val intent =
+        Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+          addCategory(Intent.CATEGORY_OPENABLE)
+          type = "text/plain"
+          if (startingFileName != null) {
+            putExtra(Intent.EXTRA_TITLE, startingFileName)
+          }
+        }
+    activity?.startActivityForResult(intent, SAVE_FILE_DIALOG_CODE)
+  }
+
+  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    activity = binding.activity
+  }
+
+  override fun onDetachedFromActivity() {
+    activity = null
+  }
+
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    onAttachedToActivity(binding)
+  }
+
+  override fun onDetachedFromActivityForConfigChanges() {
+    onDetachedFromActivity()
+  }
+
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+    if (requestCode == SAVE_FILE_DIALOG_CODE) {
+      if (resultCode == Activity.RESULT_OK) {
+        val path = data?.data?.path
+        callback?.invoke(Result.success(path))
+      } else {
+        callback?.invoke(Result.success(null))
+      }
+      callback = null
+    }
+    return true
   }
 }

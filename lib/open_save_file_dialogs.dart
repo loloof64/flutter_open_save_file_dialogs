@@ -2,7 +2,7 @@
 import 'open_save_file_dialogs_platform_interface.dart';
 
 class OpenSaveFileDialogs {
-  Future<String?> getPlatformVersion() {
-    return OpenSaveFileDialogPlatform.instance.getPlatformVersion();
+  Future<String?> saveFileDialog({String? startingFileName}) {
+    return OpenSaveFileDialogPlatform.instance.saveFileDialog(startingFileName: startingFileName);
   }
 }

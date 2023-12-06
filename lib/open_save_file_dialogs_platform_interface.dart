@@ -1,6 +1,5 @@
+import 'package:open_save_file_dialogs/open_save_file_dialogs_usage.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-import 'open_save_file_dialogs_method_channel.dart';
 
 abstract class OpenSaveFileDialogPlatform extends PlatformInterface {
   /// Constructs a OpenSaveFileDialogPlatform.
@@ -8,7 +7,7 @@ abstract class OpenSaveFileDialogPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static OpenSaveFileDialogPlatform _instance = MethodChannelOpenSaveFileDialog();
+  static OpenSaveFileDialogPlatform _instance = OpenSaveFileDialogUsage();
 
   /// The default instance of [OpenSaveFileDialogPlatform] to use.
   ///
@@ -23,7 +22,7 @@ abstract class OpenSaveFileDialogPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
-  }
+  Future<String?> saveFileDialog(
+    {String? startingFileName,}
+  );
 }

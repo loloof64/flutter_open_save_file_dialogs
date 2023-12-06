@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:open_save_file_dialogs/open_save_file_dialogs.dart';
 
 void main() {
@@ -16,34 +15,14 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
   final _openSaveFileDialogsPlugin = OpenSaveFileDialogs();
+  String? path;
 
-  @override
-  void initState() {
-    super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _openSaveFileDialogsPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
+  void _selectFile() async {
+    path = await _openSaveFileDialogsPlugin.saveFileDialog();
+    print("Chemin sélectionné : $path");
     setState(() {
-      _platformVersion = platformVersion;
+      path = path;
     });
   }
 
@@ -52,10 +31,22 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('OpenSaveFileDialogs example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Selected path: $path'),
+              ElevatedButton(
+                onPressed: _selectFile,
+                child: const Text(
+                  'Select file',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
