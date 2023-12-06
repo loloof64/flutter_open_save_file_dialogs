@@ -20,7 +20,7 @@ class _MyAppState extends State<MyApp> {
 
   void _selectFile() async {
     path = await _openSaveFileDialogsPlugin.saveFileDialog();
-    print("Chemin sélectionné : $path");
+    print("Selected path : $path");
     setState(() {
       path = path;
     });
