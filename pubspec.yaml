@@ -1,6 +1,6 @@
 name: open_save_file_dialogs
 description: "A Flutter plugin for opening and saving files on Android, using the native file chooser."
-version: 0.1.2
+version: 0.1.1
 repository: https://github.com/loloof64/flutter_open_save_file_dialogs
 
 environment:
