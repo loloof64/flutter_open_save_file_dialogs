@@ -1,6 +1,6 @@
 # open save file dialog
 
-A Flutter plugin for opening and saving files on Android.
+A Flutter plugin for opening and saving files on Android, using native file chooser.
 
 ### Dialogs
 
