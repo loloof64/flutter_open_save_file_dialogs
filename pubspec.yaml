@@ -4,7 +4,7 @@ version: 0.1.2
 repository: https://github.com/loloof64/flutter_open_save_file_dialogs
 
 environment:
-  sdk: '>=3.2.2 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
   flutter: '>=3.3.0'
 
 dependencies:
