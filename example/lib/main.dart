@@ -15,28 +15,22 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _openSaveFileDialogsPlugin = OpenSaveFileDialogs();
-  String? savedFilePath;
-  String? openedFilePath;
-  String? folderPath;
+
+  String? savedFileName;
+  String? openedFileContent;
 
   void _selectSavedFile() async {
-    final path = await _openSaveFileDialogsPlugin.saveFileDialog(startingFileName: "test.txt");
+    final newFileName = await _openSaveFileDialogsPlugin.saveFileDialog(
+        content: "This is a\nsimple test.\n", startingFileName: "test.txt");
     setState(() {
-      savedFilePath = path;
+      savedFileName = newFileName;
     });
   }
 
   void _selectOpenedFile() async {
-    final path = await _openSaveFileDialogsPlugin.openFileDialog();
+    final content = await _openSaveFileDialogsPlugin.openFileDialog();
     setState(() {
-      openedFilePath = path;
-    });
-  }
-
-  void _selectFolder() async {
-    final path = await _openSaveFileDialogsPlugin.folderDialog();
-    setState(() {
-      folderPath = path;
+      openedFileContent = content;
     });
   }
 
@@ -52,7 +46,7 @@ class _MyAppState extends State<MyApp> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('Saved file path: $savedFilePath'),
+              Text('Saved file name: $savedFileName'),
               ElevatedButton(
                 onPressed: _selectSavedFile,
                 child: const Text(
@@ -60,19 +54,11 @@ class _MyAppState extends State<MyApp> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Opened file path: $openedFilePath'),
+              Text('Opened file content: $openedFileContent'),
               ElevatedButton(
                 onPressed: _selectOpenedFile,
                 child: const Text(
                   'Select opened file',
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text('Saved folder path: $folderPath'),
-              ElevatedButton(
-                onPressed: _selectFolder,
-                child: const Text(
-                  'Select folder',
                 ),
               ),
             ],

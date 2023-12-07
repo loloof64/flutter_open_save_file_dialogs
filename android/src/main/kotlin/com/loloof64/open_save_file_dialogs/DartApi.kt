@@ -45,9 +45,8 @@ class FlutterError (
 
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface OpenSaveFileDialogs {
-  fun saveFileDialog(startingFileName: String?, callback: (Result<String?>) -> Unit)
+  fun saveFileDialog(content: String, startingFileName: String?, callback: (Result<String?>) -> Unit)
   fun openFileDialog(callback: (Result<String?>) -> Unit)
-  fun folderDialog(callback: (Result<String?>) -> Unit)
 
   companion object {
     /** The codec used by OpenSaveFileDialogs. */
@@ -62,8 +61,9 @@ interface OpenSaveFileDialogs {
         if (api != null) {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
-            val startingFileNameArg = args[0] as String?
-            api.saveFileDialog(startingFileNameArg) { result: Result<String?> ->
+            val contentArg = args[0] as String
+            val startingFileNameArg = args[1] as String?
+            api.saveFileDialog(contentArg, startingFileNameArg) { result: Result<String?> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))
@@ -82,24 +82,6 @@ interface OpenSaveFileDialogs {
         if (api != null) {
           channel.setMessageHandler { _, reply ->
             api.openFileDialog() { result: Result<String?> ->
-              val error = result.exceptionOrNull()
-              if (error != null) {
-                reply.reply(wrapError(error))
-              } else {
-                val data = result.getOrNull()
-                reply.reply(wrapResult(data))
-              }
-            }
-          }
-        } else {
-          channel.setMessageHandler(null)
-        }
-      }
-      run {
-        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.open_save_file_dialogs.OpenSaveFileDialogs.folderDialog", codec)
-        if (api != null) {
-          channel.setMessageHandler { _, reply ->
-            api.folderDialog() { result: Result<String?> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))

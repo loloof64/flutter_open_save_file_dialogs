@@ -6,8 +6,10 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.PluginRegistry
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
-typealias Callback = (Result<String?>) -> Unit
+typealias CallbackString = (Result<String?>) -> Unit
 
 /** OpenSaveFileDialogPlugin */
 class OpenSaveFileDialogsPlugin :
@@ -16,13 +18,12 @@ class OpenSaveFileDialogsPlugin :
   companion object {
     val SAVE_FILE_DIALOG_CODE = 1
     val OPEN_FILE_DIALOG_CODE = 2
-    val SELECT_FOLDER_DIALOG_CODE = 3
   }
 
   private var activity: Activity? = null
-  private var saveFileCallback: Callback? = null
-  private var openFileCallback: Callback? = null
-  private var selectFolderCallback: Callback? = null
+  private var saveFileCallback: CallbackString? = null
+  private var openFileCallback: CallbackString? = null
+  private var contentToSave: String? = null
 
   override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     OpenSaveFileDialogs.setUp(binding.binaryMessenger, this)
@@ -32,8 +33,9 @@ class OpenSaveFileDialogsPlugin :
     OpenSaveFileDialogs.setUp(binding.binaryMessenger, null)
   }
 
-  override fun saveFileDialog(startingFileName: String?, callback: Callback) {
+  override fun saveFileDialog(content: String, startingFileName: String?, callback: CallbackString) {
     saveFileCallback = callback
+    contentToSave = content
     val intent =
         Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
           addCategory(Intent.CATEGORY_OPENABLE)
@@ -45,19 +47,13 @@ class OpenSaveFileDialogsPlugin :
     activity?.startActivityForResult(intent, SAVE_FILE_DIALOG_CODE)
   }
 
-  override fun openFileDialog(callback: Callback) {
+  override fun openFileDialog(callback: CallbackString) {
     openFileCallback = callback
     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
       addCategory(Intent.CATEGORY_OPENABLE)
       type = "text/plain"
   }
     activity?.startActivityForResult(intent, OPEN_FILE_DIALOG_CODE)
-  }
-
-  override fun folderDialog(callback: (Result<String?>) -> Unit) {
-    selectFolderCallback = callback
-    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-    activity?.startActivityForResult(intent, SELECT_FOLDER_DIALOG_CODE)
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -80,30 +76,87 @@ class OpenSaveFileDialogsPlugin :
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
     if (requestCode == SAVE_FILE_DIALOG_CODE) {
       if (resultCode == Activity.RESULT_OK) {
-        val path = data?.data?.path
-        saveFileCallback?.invoke(Result.success(path))
+        if (contentToSave == null) {
+          saveFileCallback?.invoke(Result.failure(Exception("Could not create file")))
+          saveFileCallback = null
+          contentToSave = null
+          return true
+        }
+        val uri = data?.data
+        if (uri == null) {
+          saveFileCallback?.invoke(Result.failure(Exception("Could not create file")))
+          saveFileCallback = null
+          contentToSave = null
+          return true
+        }
+        val fileDescriptor = try {
+          activity?.contentResolver?.openFileDescriptor(uri, "w")?.fileDescriptor
+        } catch (e: Exception) {
+          saveFileCallback?.invoke(Result.failure(Exception("File descriptor could not be found")))
+          saveFileCallback = null
+          contentToSave = null
+          return true
+        }
+        if (fileDescriptor == null) {
+          saveFileCallback?.invoke(Result.failure(Exception("File descriptor could not be found")))
+          saveFileCallback = null
+          contentToSave = null
+          return true
+        }
+
+        val outputStream = FileOutputStream(fileDescriptor!!)
+        outputStream.write(contentToSave!!.toByteArray())
+        outputStream.close()
+
+        val newFileName = uri!!.path?.split("/")?.last() ?: "#Error:unknown#"
+        saveFileCallback?.invoke(Result.success(newFileName))
+
+        saveFileCallback = null
+        contentToSave = null
+        return true
       } else {
         saveFileCallback?.invoke(Result.success(null))
+
+        saveFileCallback = null
+        contentToSave = null
+        return true
       }
-      saveFileCallback = null
     }
     else if (requestCode == OPEN_FILE_DIALOG_CODE) {
       if (resultCode == Activity.RESULT_OK) {
-        val path = data?.data?.path
-        openFileCallback?.invoke(Result.success(path))
+        val uri = data?.data
+        if (uri == null) {
+          openFileCallback?.invoke(Result.failure(Exception("File not found")))
+          openFileCallback = null
+          return true
+        }
+        val fileDescriptor = try {
+          activity?.contentResolver?.openFileDescriptor(uri, "r")?.fileDescriptor
+        } catch (e: Exception) {
+          openFileCallback?.invoke(Result.failure(Exception("File descriptor could not be found")))
+          openFileCallback = null
+          return true
+        }
+        if (fileDescriptor == null) {
+          openFileCallback?.invoke(Result.failure(Exception("File descriptor could not be found")))
+          openFileCallback = null
+          return true
+        }
+
+        val inputStream = FileInputStream(fileDescriptor!!)
+        val buffer = ByteArray(1024)
+        var bytesRead: Int
+        val stringBuilder = StringBuilder()
+        while (inputStream.read(buffer) != -1) {
+          stringBuilder.append(String(buffer))
+        }
+        inputStream.close()
+
+        openFileCallback?.invoke(Result.success(stringBuilder.toString()))
+
+        openFileCallback = null
+        return true
       }
-      else {
-        openFileCallback?.invoke(Result.success(null))
-      }
-    }
-    else if (requestCode == SELECT_FOLDER_DIALOG_CODE) {
-      if (resultCode == Activity.RESULT_OK) {
-        val path = data?.data?.path
-        selectFolderCallback?.invoke(Result.success(path))
-      } else {
-        selectFolderCallback?.invoke(Result.success(null))
-      }
-      selectFolderCallback = null
     }
     return true
   }

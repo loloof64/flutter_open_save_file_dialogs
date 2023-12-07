@@ -22,11 +22,10 @@ abstract class OpenSaveFileDialogPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> saveFileDialog(
-    {String? startingFileName,}
-  );
+  Future<String?> saveFileDialog({
+    required String content,
+    String? startingFileName,
+  });
 
   Future<String?> openFileDialog();
-
-  Future<String?> folderDialog();
 }
