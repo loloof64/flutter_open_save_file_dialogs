@@ -147,9 +147,11 @@ class OpenSaveFileDialogsPlugin :
         val buffer = ByteArray(1024)
         var bytesRead: Int
         val stringBuilder = StringBuilder()
-        while (inputStream.read(buffer) != -1) {
-          stringBuilder.append(String(buffer))
+
+        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+            stringBuilder.append(String(buffer, 0, bytesRead))
         }
+
         inputStream.close()
 
         openFileCallback?.invoke(Result.success(stringBuilder.toString()))

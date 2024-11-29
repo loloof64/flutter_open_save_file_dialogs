@@ -41,27 +41,33 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('OpenSaveFileDialogs example app'),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('Saved file name: $savedFileName'),
-              ElevatedButton(
-                onPressed: _selectSavedFile,
-                child: const Text(
-                  'Select saved file',
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('Saved file name: $savedFileName'),
+                ElevatedButton(
+                  onPressed: _selectSavedFile,
+                  child: const Text(
+                    'Select saved file',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              Text('Opened file content: $openedFileContent'),
-              ElevatedButton(
-                onPressed: _selectOpenedFile,
-                child: const Text(
-                  'Select opened file',
+                const SizedBox(height: 20),
+                Expanded(
+                  child: SingleChildScrollView(
+                      child:
+                          Text('Opened file content:\n\n$openedFileContent')),
                 ),
-              ),
-            ],
+                ElevatedButton(
+                  onPressed: _selectOpenedFile,
+                  child: const Text(
+                    'Select opened file',
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
