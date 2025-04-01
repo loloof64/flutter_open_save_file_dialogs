@@ -6,7 +6,7 @@
 
 * bug fix : sometimes failed to read whole text file
 
-# 0.1.1
+## 0.1.1
 
 * saveFileDialog now directly write content to the selected file, and returns the name of the created file
 * openFileDialog now directly returns the content of the opened file
