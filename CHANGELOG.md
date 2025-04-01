@@ -1,3 +1,7 @@
+## 0.1.3
+
+* bug fix : saving file does not truncate first, on Android 10 and above.
+
 ## 0.1.2
 
 * bug fix : sometimes failed to read whole text file

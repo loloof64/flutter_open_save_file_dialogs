@@ -90,7 +90,7 @@ class OpenSaveFileDialogsPlugin :
           return true
         }
         val fileDescriptor = try {
-          activity?.contentResolver?.openFileDescriptor(uri, "w")?.fileDescriptor
+          activity?.contentResolver?.openFileDescriptor(uri, "wt")?.fileDescriptor
         } catch (e: Exception) {
           saveFileCallback?.invoke(Result.failure(Exception("File descriptor could not be found")))
           saveFileCallback = null

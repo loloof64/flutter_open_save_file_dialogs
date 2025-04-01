@@ -20,18 +20,26 @@ class _MyAppState extends State<MyApp> {
   String? openedFileContent;
 
   void _selectSavedFile() async {
-    final newFileName = await _openSaveFileDialogsPlugin.saveFileDialog(
-        content: "This is a\nsimple test.\n", startingFileName: "test.txt");
-    setState(() {
-      savedFileName = newFileName;
-    });
+    try {
+      final newFileName = await _openSaveFileDialogsPlugin.saveFileDialog(
+          content: "This is a\nsimple test.\n", startingFileName: "test.txt");
+      setState(() {
+        savedFileName = newFileName;
+      });
+    } on Exception catch (e) {
+      debugPrint("Error happened while trying to save : $e");
+    }
   }
 
   void _selectOpenedFile() async {
-    final content = await _openSaveFileDialogsPlugin.openFileDialog();
-    setState(() {
-      openedFileContent = content;
-    });
+    try {
+      final content = await _openSaveFileDialogsPlugin.openFileDialog();
+      setState(() {
+        openedFileContent = content;
+      });
+    } on Exception catch (e) {
+      debugPrint("Error happened while trying to open : $e");
+    }
   }
 
   @override

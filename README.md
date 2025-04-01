@@ -8,6 +8,8 @@ A Flutter plugin for opening and saving files on Android, using native file choo
 
 Call the async method `saveFileDialog`, where you pass a String for the new file content, and you can pass a String for the named parameter `startingFileName` if you want.
 
+Throws an exception if the content could not be saved.
+
 You get the saved file name as a String(you could get another name if the selected name is already taken by another file and you don't select it for rewriting), or null if no file was selected.
 
 ```dart
